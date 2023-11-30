@@ -3,11 +3,16 @@
 
 #include "MinCompSpin_Greedy/Libraries/library.hpp"
 
-int main(int argc, char *argv[]);
+int main(int argc, const char *argv[]);
 
-int main_wrapper(void) {
-    char *arg1 = "invalid";
-    main(1, &arg1);
+const int argc = 3;
+int main_wrapper(char *path, char *n_string_buffer) {
+    const char *argv[argc] = {
+        "invalid",
+        path,
+        n_string_buffer,
+    };
+    main(argc, argv);
     return 0;
 }
 
