@@ -1,0 +1,43 @@
+datafilename := INPUT/SCOTUS_n9_N895_Data.dat  # datafile name
+n := 9		# number of binary variables in the datafile 
+
+a.out: main.o tools.o LogE.o LogL.o Complexity.o MCM_info.o Basis_Choice.o P_s.o Operations_OnData.o info_quant.o BestMCM_GreedySearch.o main_routines.o library.hpp.gch
+	g++ -std=c++11 main.o main_routines.o tools.o LogE.o LogL.o Complexity.o MCM_info.o Basis_Choice.o P_s.o info_quant.o Operations_OnData.o BestMCM_GreedySearch.o
+
+main.o: main.cpp library.hpp.gch data.h
+	g++ -std=c++11 -c main.cpp -include library.hpp # Compile main.cpp
+
+main_routines.o: main_routines.cpp library.hpp.gch
+	g++ -std=c++11 -c main_routines.cpp -include library.hpp # Compile main_routines.cpp
+
+library.hpp.gch: library.hpp
+	g++ -std=c++11 -c library.hpp
+
+BestMCM_GreedySearch.o: BestMCM_GreedySearch.cpp
+	g++ -std=c++11 -c BestMCM_GreedySearch.cpp # Compile BestMCM_GreedySearch.cpp
+
+info_quant.o: info_quant.cpp
+	g++ -std=c++11 -c info_quant.cpp # Compile info_quant.cpp
+
+Operations_OnData.o: Operations_OnData.cpp
+	g++ -std=c++11 -c Operations_OnData.cpp # Compile Operations_OnData.cpp
+
+Basis_Choice.o: Basis_Choice.cpp
+	g++ -std=c++11 -c Basis_Choice.cpp # Compile Basis_Choice.cpp
+
+P_s.o: P_s.cpp
+	g++ -std=c++11 -c P_s.cpp # Compile P_s.cpp
+
+MCM_info.o: MCM_info.cpp
+	g++ -std=c++11 -c MCM_info.cpp # Compile MCM_info.cpp
+
+MCM_Tools.o: tools.cpp LogL.cpp Complexity.cpp LogE.cpp 
+	g++ -std=c++11 -c tools.cpp LogL.cpp Complexity.cpp LogE.cpp
+
+run: a.out
+	./a.out $(datafilename) $n
+
+clean:
+	rm tools.o Complexity.o LogL.o LogE.o MCM_info.o P_s.o Basis_Choice.o Operations_OnData.o info_quant.o BestMCM_GreedySearch.o library.hpp.gch
+
+#main.o Operations_OnData.o LogE.o LogL.o Complexity.o info_quant.o Basis_Choice.o P_s.o MCM_GreedySearch.o MCM_info.o main_routines.o tools.o
