@@ -1,3 +1,8 @@
+# Requirements
+**C++:**  The code uses the C++11 version of C++.
+
+**Python:** requires `pybind11` to be installed.
+
 # Install
 
 ```console
