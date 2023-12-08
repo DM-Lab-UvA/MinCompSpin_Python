@@ -1,7 +1,7 @@
 # Requirements
 **C++:**  The code uses the C++11 version of C++.
 
-**Python:** requires `pybind11` to be installed.
+**Python:** requires `pybind11` to be installed. See [here](https://pybind11.readthedocs.io/en/stable/basics.html) for the requirements for pybind11 depending on your environment. 
 
 # Install
 
