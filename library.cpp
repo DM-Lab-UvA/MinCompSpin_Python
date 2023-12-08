@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -49,6 +50,12 @@ static void declare_MCM_Model(pybind11::handle m) {
         });
 }
 
+class MCM_Model: public MCM_ModelBuffer {
+public:
+    MCM_Model(size_t partitions, unsigned int r)
+    : MCM_ModelBuffer(partitions, r) {}
+};
+
 void test(pybind11::buffer buf) {
     pybind11::buffer_info info = buf.request();
     assert(info.ndim == 2);
@@ -57,7 +64,7 @@ void test(pybind11::buffer buf) {
     for (ssize_t i = 0; i < info.shape[0]; i++) {
         for (ssize_t j = 0; j < info.shape[1]; j++) {
             uint64_t *val = (uint64_t *)(ptr + info.strides[0] * i + info.strides[1] * j);
-            printf("%lu, ", *val);
+            std::cout << *val << ", ";
             *val += 1;
         }
         printf("\n");
