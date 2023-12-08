@@ -2,7 +2,7 @@
 // To run: or: make run
 //         or: ./GreedySearch.out data_filename n
 //
-#define _USE_MATH_DEFINES 
+// #define _USE_MATH_DEFINES 
 #include <iostream>
 #include <fstream>
 #include <sstream>
