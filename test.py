@@ -3,6 +3,7 @@ import MinCompSpin as mod
 
 def greedy_main(path, r):
     Kset, N = mod.read_datafile(path, r)
+    print("Kset", type(Kset), Kset)
     print(f"Found {N} samples")
     print("Entropy (S):", mod.Entropy(Kset, N))
 
@@ -30,35 +31,26 @@ def test_buf():
     mod.test(arr)
     return
 
+import time
+import numpy as np
+def foo(path, r):
+    Kset, N = mod.read_datafile(path, r)
+    print("Kset", Kset)
+    print("DATA READ \n\n")
+    fp1 = mod.MCM_GreedySearch(Kset, N, r)
+    print("fp1", fp1)
+
 def test():
     path = "MinCompSpin_Greedy/INPUT/SCOTUS_n9_BestBasis_Binary.dat"
     r = 9
+    # foo(path, r)
+    # print("test done")
+    # return
+    mod.main(path, "9")
+    # return
+
     greedy_main(path, r)
     return
 
-    res = mod.read_datafile(path, r)
-    print("read file")
-    print(res)
-    Kset, N = res
-
-    print("starting search")
-    # mod.MCM_GreedySearch_AND_printInfo(Kset, N, r)
-    fp1 = mod.MCM_GreedySearch(Kset, N, r)
-    print("did search")
-    print(fp1)
-
-    S = mod.Entropy(Kset, N)
-    print("S", S)
-
-    # print("LogE_g", mod.LogE_MCM(Kset, fp1, N, r))
-    # print("LogL_g", mod.LogL_MCM(Kset, fp1, N, r))
-
-    # print("Print_MCM_Partition", mod.Print_MCM_Partition(fp1, r))
-
-    print("LogE_MCM_infoICC", mod.LogE_MCM_infoICC(Kset, fp1, N, r))
-
-    mod.main("MinCompSpin_Greedy/INPUT/SCOTUS_n9_BestBasis_Binary.dat", "9")
-
-
 if __name__ == '__main__':
-    test_buf()
+    test()
