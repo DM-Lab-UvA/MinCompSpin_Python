@@ -18,8 +18,8 @@ std::map<unsigned int, __int128_t> MCM_GreedySearch(std::vector<std::pair<__int1
 
 typedef std::vector<std::pair<__int128_t, unsigned int>> GreedyKset;
 typedef std::map<unsigned int, __int128_t> GreedyPartitions;
-typedef pybind11::array_t<uint64_t> NumpyKset;
-typedef pybind11::array_t<uint64_t> NumpyPartitions;
+typedef std::pair<pybind11::array_t<uint64_t>, pybind11::array_t<uint32_t>> NumpyKset;
+typedef std::pair<pybind11::array_t<uint32_t>, pybind11::array_t<uint64_t>> NumpyPartitions;
 
 /*
  * m_array is a numpy array with dtype np.uint64. The shape is (N, 3).
@@ -30,44 +30,61 @@ typedef pybind11::array_t<uint64_t> NumpyPartitions;
  */
 class MCM_Kset {
 public:
-    pybind11::array_t<uint64_t> m_array;
-    MCM_Kset(pybind11::array_t<uint64_t> array) : m_array(array) {}
+    pybind11::array_t<uint64_t> m_bitsets;
+    pybind11::array_t<uint32_t> m_counts;
+
+    MCM_Kset(NumpyKset Kset) {
+        m_bitsets = Kset.first;
+        m_counts = Kset.second;
+    }
     MCM_Kset(GreedyKset kset) {
         size_t N = kset.size();
-        uint64_t *buf = new uint64_t[N * 3];
+        uint64_t *bitsets_buf = new uint64_t[N * 2];
+        uint32_t *counts_buf = new uint32_t[N];
         size_t i = 0;
         for (auto const& pair : kset) {
-            buf[i++] = pair.first & ((__uint128_t)-1 >> 64);
-            buf[i++] = pair.first >> 64;
-            buf[i++] = pair.second;
+            bitsets_buf[i*2+0] = pair.first & ((__uint128_t)-1 >> 64);
+            bitsets_buf[i*2+1] = pair.first >> 64;
+            counts_buf[i] = pair.second;
+            i++;
         }
 
         // This allows python to free the memory
-        pybind11::capsule free_when_done(buf, [](void *ptr) {
+        pybind11::capsule bitsets_free_when_done(bitsets_buf, [](void *ptr) {
             uint64_t *buf = reinterpret_cast<uint64_t *>(ptr);
             std::cerr << "Element [0] = " << buf[0] << "\n";
             std::cerr << "freeing memory @ " << ptr << "\n";
             delete[] buf;
         });
-        pybind11::array::ShapeContainer shape = { N, (size_t)3 }; // shape
-        pybind11::array::StridesContainer strides = { sizeof(uint64_t) * 3, sizeof(uint64_t) }; // stride
-        m_array = pybind11::array_t<uint64_t>(
-            shape,
-            strides,
-            buf,
-            free_when_done
+        pybind11::capsule counts_free_when_done(counts_buf, [](void *ptr) {
+            uint64_t *buf = reinterpret_cast<uint64_t *>(ptr);
+            std::cerr << "Element [0] = " << buf[0] << "\n";
+            std::cerr << "freeing memory @ " << ptr << "\n";
+            delete[] buf;
+        });
+        m_bitsets = pybind11::array_t<uint64_t>(
+            { N, (size_t)2 },
+            { sizeof(uint64_t) * 2, sizeof(uint64_t) },
+            bitsets_buf,
+            bitsets_free_when_done
+        );
+        m_counts = pybind11::array_t<uint32_t>(
+            { N, },
+            { sizeof(uint32_t) },
+            counts_buf,
+            counts_free_when_done
         );
     }
     NumpyKset to_numpy() {
-        return m_array;
+        return NumpyKset(m_bitsets, m_counts);
     }
     GreedyKset to_greedy() {
-        size_t N = m_array.shape(0);
+        size_t N = m_bitsets.shape(0);
         GreedyKset greedy_Kset = GreedyKset(N);
         for (size_t i = 0; i < N; i++) {
             std::pair<__int128_t, unsigned int> item;
-            item.first = ((__int128_t)m_array.at(i, 1) << 64) | (__int128_t)m_array.at(i, 0);
-            item.second = m_array.at(i, 2);
+            item.first = ((__int128_t)m_bitsets.at(i, 1) << 64) | (__int128_t)m_bitsets.at(i, 0);
+            item.second = m_counts.at(i);
             greedy_Kset[i] = item;
         }
         return greedy_Kset;
@@ -81,47 +98,61 @@ public:
 class MCM_Partitions {
 public:
     size_t m_r;
-    pybind11::array_t<uint64_t> m_array;
-    MCM_Partitions(pybind11::array_t<uint64_t> array) : m_array(array) {}
+    pybind11::array_t<uint64_t> m_ids;
+    pybind11::array_t<uint64_t> m_partitions;
+
+    MCM_Partitions(NumpyPartitions Partitions) {
+        m_ids = Partitions.first;
+        m_partitions = Partitions.second;
+    }
     MCM_Partitions(GreedyPartitions greedy_partitions, unsigned int r) : m_r(r) {
         size_t partition_count = greedy_partitions.size();
-        uint64_t *buf = new uint64_t[partition_count * 3];
+        uint64_t *partitions_buf = new uint64_t[partition_count * 2];
+        uint32_t *ids_buf = new uint32_t[partition_count];
         size_t i = 0;
         for (auto pair : greedy_partitions) {
-            buf[i++] = pair.first;
-            buf[i++] = pair.second & ((__int128)-1 >> 64);
-            buf[i++] = pair.second >> 64;
+            ids_buf[i] = pair.first;
+            partitions_buf[i*2+0] = pair.second & ((__int128)-1 >> 64);
+            partitions_buf[i*2+1] = pair.second >> 64;
+            i++;
         }
 
         // This allows python to free the memory
-        pybind11::capsule free_when_done(buf, [](void *ptr) {
+        pybind11::capsule partitions_free_when_done(partitions_buf, [](void *ptr) {
             uint64_t *buf = reinterpret_cast<uint64_t *>(ptr);
             std::cerr << "Element [0] = " << buf[0] << "\n";
             std::cerr << "freeing memory @ " << ptr << "\n";
             delete[] buf;
         });
-        pybind11::array::ShapeContainer shape = { partition_count, (size_t)3 }; // shape
-        pybind11::array::StridesContainer strides = { sizeof(uint64_t) * 3, sizeof(uint64_t) }; // stride
-        m_array = pybind11::array_t<uint64_t>(
-            shape,
-            strides,
-            buf,
-            free_when_done
+        pybind11::capsule ids_free_when_done(ids_buf, [](void *ptr) {
+            uint32_t *buf = reinterpret_cast<uint32_t *>(ptr);
+            std::cerr << "Element [0] = " << buf[0] << "\n";
+            std::cerr << "freeing memory @ " << ptr << "\n";
+            delete[] buf;
+        });
+        m_partitions = pybind11::array_t<uint64_t>(
+            { partition_count, (size_t)2 },
+            { sizeof(uint64_t) * 2, sizeof(uint64_t) },
+            partitions_buf,
+            partitions_free_when_done
+        );
+        m_ids = pybind11::array_t<uint32_t>(
+            { partition_count },
+            { sizeof(uint32_t) },
+            ids_buf,
+            ids_free_when_done
         );
     }
-    ~MCM_Partitions() { 
-        std::cout << "Deleting Model !!!!" << std::endl;
-    }
-    pybind11::array_t<uint64_t> to_numpy() {
-        return m_array;
+    NumpyPartitions to_numpy() {
+        return NumpyPartitions(m_ids, m_partitions);
     }
     GreedyPartitions to_greedy() {
         GreedyPartitions greedy_partitions;
-        ssize_t partition_count = m_array.shape(0);
+        ssize_t partition_count = m_ids.shape(0);
         for (ssize_t i = 0; i < partition_count; i++) {
             auto pair = std::pair<unsigned int, __int128_t>(
-                m_array.at(i, 0),
-                (__int128_t)m_array.at(i, 1) + ((__int128_t)m_array.at(i, 2) << 64)
+                m_ids.at(i),
+                (__int128_t)m_partitions.at(i, 0) + ((__int128_t)m_partitions.at(i, 1) << 64)
             );
             greedy_partitions.insert(pair);
         }
@@ -159,7 +190,6 @@ NumpyPartitions MCM_GreedySearch_wrapper(NumpyKset Kset, unsigned int N, unsigne
     GreedyKset greedy_Kset = MCM_Kset(Kset).to_greedy();
     GreedyPartitions greedy_partitions = MCM_GreedySearch(greedy_Kset, N, r, print_it);
     auto model = MCM_Partitions(greedy_partitions, r);
-    std::cout << "wrapper return" << std::endl;
     return model.to_numpy();
 }
 
