@@ -28,13 +28,6 @@ void array_u64_destructor(void *ptr) {
     delete[] buf;
 }
 
-void array_u32_destructor(void *ptr) {
-    uint32_t *buf = reinterpret_cast<uint32_t *>(ptr);
-    std::cerr << "Element [0] = " << buf[0] << "\n";
-    std::cerr << "freeing memory @ " << ptr << "\n";
-    delete[] buf;
-}
-
 /*
  * m_array is a numpy array with dtype np.uint64. The shape is (N, 3).
  * Every row is an item in the histogram. The value at index [i, 0]
@@ -47,7 +40,9 @@ public:
     pybind11::array_t<uint64_t> m_array;
     unsigned int m_N; // Number of points in the data set.
 
-    MCM_Kset(GreedyKset kset, size_t N) {
+    MCM_Kset(pybind11::array_t<uint64_t> array, unsigned int N)
+        : m_array(array), m_N(N) {}
+    MCM_Kset(GreedyKset kset, unsigned int N) {
         size_t nr_bins = kset.size();
         uint64_t *buf = new uint64_t[nr_bins * 3];
         size_t i = 0;
@@ -84,6 +79,7 @@ public:
 
 static void declare_MCM_Kset(pybind11::handle m) {
     pybind11::class_<MCM_Kset>(m, "Kset")
+        .def(pybind11::init<pybind11::array_t<uint64_t>, unsigned int>())
         .def_readwrite("N", &MCM_Kset::m_N)
         .def_readwrite("array", &MCM_Kset::m_array);
 }
@@ -94,9 +90,11 @@ static void declare_MCM_Kset(pybind11::handle m) {
  */
 class MCM_Partitions {
 public:
-    size_t m_r;
+    unsigned int m_r;
     pybind11::array_t<uint64_t> m_array;
 
+    MCM_Partitions(pybind11::array_t<uint64_t> array, unsigned int r)
+        : m_r(r), m_array(array) {}
     MCM_Partitions(GreedyPartitions greedy_partitions, unsigned int r) : m_r(r) {
         size_t partition_count = greedy_partitions.size();
         uint64_t *buf = new uint64_t[partition_count * 3];
@@ -133,6 +131,7 @@ public:
 
 static void declare_MCM_Partitions(pybind11::handle m) {
     pybind11::class_<MCM_Partitions>(m, "Partitions")
+        .def(pybind11::init<pybind11::array_t<uint64_t>, unsigned int>())
         .def_readwrite("r", &MCM_Partitions::m_r)
         .def_readwrite("array", &MCM_Partitions::m_array);
 }
