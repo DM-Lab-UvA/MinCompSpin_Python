@@ -10,7 +10,7 @@ CFLAGS_PYBIND_LINK = -shared
 ifeq ($(OS), Windows_NT) # Windows
 	# I don't know what to do here but from what I saw online
 	# it looks like it's the same as on linux.
-	CFLAGS_PYBIND_COMP += -fPIC
+	CFLAGS_PYBIND_COMP += -fPIC -U__STRICT_ANSI__
 else ifeq ($(UNAME), Darwin) # Mac
 	CFLAGS_PYBIND_LINK += -undefined dynamic_lookup
 else ifeq ($(UNAME), Linux) # Linux
