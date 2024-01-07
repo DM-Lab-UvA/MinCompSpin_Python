@@ -22,7 +22,12 @@ using namespace std::chrono;
 /*****************************************************************************************/
 /*************************   CONSTANT VARIABLES  *****************************************/
 /*****************************************************************************************/
-#include "data.h"
+#include "includes/default_datafile.h"
+
+string OutputFile_Add_Location(string filename)
+{
+    return (OUTPUT_directory + filename);
+}
 
 /*****************************************************************************************/
 /****************   GREEDY SEARCH:   Useful functions and routines    ********************/
@@ -54,10 +59,10 @@ map<unsigned int, __int128_t> read_MCM_fromfile_AND_printInfo(vector<pair<__int1
 /******************************************************************************/
 
 //// ** location of the output folder:
-string OutputFile_Add_Location(string filename)
-{
-    return (OUTPUT_directory + filename);
-}
+//string OutputFile_Add_Location(string filename);    // defined in ./src/P_s.cpp
+//{
+//    return (OUTPUT_directory + filename);
+//}
 
 /****************************************************************************************************************************************************************************/
 /****************************************************************************************************************************************************************************/
