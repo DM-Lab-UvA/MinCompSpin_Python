@@ -10,7 +10,15 @@ using namespace std;
 /******************************************************************************/
 /***************************   ADD OUTPUT FOLDER    ***************************/
 /******************************************************************************/
-string OutputFile_Add_Location(string filename);  // defined in main.cpp
+//#include "../../includes/default_datafile.h"
+
+string OutputFile_Add_Location(string filename);  // defined in main.cpp and in py_binding.cpp
+/*
+string OutputFile_Add_Location(string filename)
+{
+    return (OUTPUT_directory + filename);
+}
+*/
 
 /******************************************************************************/
 /***************************   Constant variables   ***************************/
