@@ -1,5 +1,6 @@
-#include <cassert>
+//#include <cassert>
 #include <iostream>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
@@ -11,7 +12,13 @@
 #include <list>
 #include <map>
 
-#include "MinCompSpin_Greedy/Libraries/library.hpp"
+//#include "MinCompSpin_Greedy/Libraries/library.hpp"
+#include "../includes/default_datafile.h"
+
+std::string OutputFile_Add_Location(std::string filename)
+{
+    return (OUTPUT_directory + filename);
+}
 
 std::map<unsigned int, __int128_t> MCM_GreedySearch_AND_printInfo(std::vector<std::pair<__int128_t, unsigned int>> Kset, unsigned int N, unsigned int r, bool print_it = false);
 std::map<unsigned int, __int128_t> MCM_GreedySearch(std::vector<std::pair<__int128_t, unsigned int>> Kset, unsigned int N, unsigned int r, bool print_it = false);
@@ -136,6 +143,7 @@ static void declare_MCM_Partitions(pybind11::handle m) {
         .def_readwrite("array", &MCM_Partitions::m_array);
 }
 
+/*
 int main(int argc, const char *argv[]);
 
 const int argc = 3;
@@ -148,6 +156,7 @@ int main_wrapper(char *path, char *n_string_buffer) {
     main(argc, argv);
     return 0;
 }
+*/
 
 MCM_Kset read_datafile_wrapper(
         std::string file,
@@ -223,7 +232,7 @@ PYBIND11_MODULE(MinCompSpin, m) {
     declare_MCM_Kset(m);
     declare_MCM_Partitions(m);
 
-    m.def("main", &main_wrapper, "the main function");
+//    m.def("main", &main_wrapper, "the main function");
     
     m.def("read_datafile", &read_datafile_wrapper);
     m.def("MCM_GreedySearch_AND_printInfo", &MCM_GreedySearch_AND_printInfo_wrapper,
