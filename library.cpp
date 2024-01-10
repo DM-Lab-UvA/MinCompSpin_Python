@@ -208,6 +208,15 @@ void Print_MCM_Partition_wrapper(
     return Print_MCM_Partition(greedy_partitions, r);
 }
 
+double LogL_MCM_infoICC_wrapper(
+        MCM_Kset Kset,
+        MCM_Partitions Partition,
+        unsigned int r) {
+    GreedyKset greedy_Kset = Kset.to_greedy();
+    GreedyPartitions greedy_partitions = Partition.to_greedy();
+    return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, r);
+}
+
 double LogE_MCM_infoICC_wrapper(
         MCM_Kset Kset,
         MCM_Partitions Partition,
@@ -240,6 +249,7 @@ PYBIND11_MODULE(MinCompSpin, m) {
     m.def("LogE_MCM", &LogE_MCM_wrapper);
     m.def("LogL_MCM", &LogL_MCM_wrapper);
     m.def("Print_MCM_Partition", &Print_MCM_Partition_wrapper);
+    m.def("LogL_MCM_infoICC", &LogL_MCM_infoICC_wrapper);
     m.def("LogE_MCM_infoICC", &LogE_MCM_infoICC_wrapper);
     // m.def("test", &test);
 }

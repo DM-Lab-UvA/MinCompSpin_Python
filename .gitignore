@@ -2,3 +2,8 @@
 *.so
 *.o
 *.hpp.gch
+.ipynb_checkpoints
+/perf
+
+# ignore test results
+*.dat

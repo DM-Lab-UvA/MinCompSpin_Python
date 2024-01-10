@@ -27,6 +27,13 @@ CXXFLAGS = ERROR NO DEFAULT RULE
 
 all: $(OUTFILE)
 
+perf: $(MCM_GREEDY_TARGET) perf.o
+	$(CC) $(CFLAGS) -o perf $(MCM_GREEDY_TARGET) perf.o
+	./perf
+
+perf.o: perf.cpp
+	$(CC) $(CFLAGS) -o perf.o -c perf.cpp
+
 $(OUTFILE): $(MCM_GREEDY_TARGET) library.o
 	$(CC) $(CFLAGS) $(CFLAGS_PYBIND_LINK) -o $(OUTFILE) $(MCM_GREEDY_TARGET) library.o
 
@@ -40,3 +47,5 @@ clean:
 	rm $(OUTFILE) || true
 	rm library.o  || true
 	(cd $(MCM_GREEDY_BUILD_PATH) && $(MAKE) clean) || true
+
+.PHONY: all perf
