@@ -6,4 +6,4 @@
 /perf
 
 # ignore test results
-*.dat
+OUTPUT

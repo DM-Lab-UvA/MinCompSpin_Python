@@ -23,8 +23,8 @@ typedef std::map<unsigned int, __int128_t> GreedyPartitions;
  * Used when generating handles for python. */
 void array_u64_destructor(void *ptr) {
     uint64_t *buf = reinterpret_cast<uint64_t *>(ptr);
-    std::cerr << "Element [0] = " << buf[0] << "\n";
-    std::cerr << "freeing memory @ " << ptr << "\n";
+    // std::cerr << "Element [0] = " << buf[0] << "\n";
+    // std::cerr << "freeing memory @ " << ptr << "\n";
     delete[] buf;
 }
 
@@ -159,14 +159,14 @@ MCM_Kset read_datafile_wrapper(std::string file, unsigned int r) {
     return Kset;
 }
 
-MCM_Partitions MCM_GreedySearch_AND_printInfo_wrapper(MCM_Kset Kset, bool print_it = false) {
+MCM_Partitions GreedySearch_AND_printInfo_wrapper(MCM_Kset Kset, bool print_it = false) {
     GreedyKset greedy_Kset = Kset.to_greedy();
     auto greedy_partitions = MCM_GreedySearch_AND_printInfo(
         greedy_Kset, Kset.m_N, Kset.m_r, print_it);
     return MCM_Partitions(greedy_partitions, Kset.m_r);
 }
 
-MCM_Partitions MCM_GreedySearch_wrapper(MCM_Kset Kset, bool print_it = false) {
+MCM_Partitions GreedySearch_wrapper(MCM_Kset Kset, bool print_it = false) {
     GreedyKset greedy_Kset = Kset.to_greedy();
     GreedyPartitions greedy_partitions = MCM_GreedySearch(greedy_Kset, Kset.m_N, Kset.m_r, print_it);
     auto model = MCM_Partitions(greedy_partitions, Kset.m_r);
@@ -209,6 +209,16 @@ double LogE_MCM_infoICC_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
     return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
+void test_convert_Kset(MCM_Kset Kset) {
+    GreedyKset converted = Kset.to_greedy();
+    MCM_Kset copy(converted, Kset.m_N, Kset.m_r);
+}
+
+void test_convert_Partitions(MCM_Partitions Partitions) {
+    GreedyPartitions converted = Partitions.to_greedy();
+    MCM_Partitions copy(converted, Partitions.m_r);
+}
+
 PYBIND11_MODULE(MinCompSpin, m) {
     m.doc() = "pybind11 example plugin"; // optional module docstring
 
@@ -218,11 +228,11 @@ PYBIND11_MODULE(MinCompSpin, m) {
     m.def("main", &main_wrapper, "the main function");
     
     m.def("read_datafile", &read_datafile_wrapper);
-    m.def("MCM_GreedySearch_AND_printInfo", &MCM_GreedySearch_AND_printInfo_wrapper,
+    m.def("GreedySearch_AND_printInfo", &GreedySearch_AND_printInfo_wrapper,
         pybind11::arg("Kset"),
         pybind11::arg("print_it") = false
     );
-    m.def("MCM_GreedySearch", &MCM_GreedySearch_wrapper,
+    m.def("GreedySearch", &GreedySearch_wrapper,
         pybind11::arg("Kset"),
         pybind11::arg("print_it") = false
     );
@@ -232,6 +242,9 @@ PYBIND11_MODULE(MinCompSpin, m) {
     m.def("Print_MCM_Partition", &Print_MCM_Partition_wrapper);
     m.def("LogL_MCM_infoICC", &LogL_MCM_infoICC_wrapper);
     m.def("LogE_MCM_infoICC", &LogE_MCM_infoICC_wrapper);
-    // m.def("test", &test);
+
+    // Test Functions
+    m.def("test_convert_Kset", &test_convert_Kset);
+    m.def("test_convert_Partitions", &test_convert_Partitions);
 }
 
