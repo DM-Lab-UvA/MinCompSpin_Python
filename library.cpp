@@ -39,10 +39,12 @@ class MCM_Kset {
 public:
     pybind11::array_t<uint64_t> m_array;
     unsigned int m_N; // Number of points in the data set.
+    unsigned int m_r; // Number of variables/bits per point.
 
-    MCM_Kset(pybind11::array_t<uint64_t> array, unsigned int N)
-        : m_array(array), m_N(N) {}
-    MCM_Kset(GreedyKset kset, unsigned int N) {
+    MCM_Kset(pybind11::array_t<uint64_t> array, unsigned int N, unsigned int r)
+        : m_array(array), m_N(N), m_r(r) {}
+    MCM_Kset(GreedyKset kset, unsigned int N, unsigned int r) 
+        : m_N(N), m_r(r) {
         size_t nr_bins = kset.size();
         uint64_t *buf = new uint64_t[nr_bins * 3];
         size_t i = 0;
@@ -61,7 +63,6 @@ public:
             buf,
             free_when_done
         );
-        m_N = N;
     }
     GreedyKset to_greedy() {
         size_t nr_bins = m_array.shape(0);
@@ -79,8 +80,9 @@ public:
 
 static void declare_MCM_Kset(pybind11::handle m) {
     pybind11::class_<MCM_Kset>(m, "Kset")
-        .def(pybind11::init<pybind11::array_t<uint64_t>, unsigned int>())
+        .def(pybind11::init<pybind11::array_t<uint64_t>, unsigned int, unsigned int>())
         .def_readwrite("N", &MCM_Kset::m_N)
+        .def_readwrite("r", &MCM_Kset::m_r)
         .def_readwrite("array", &MCM_Kset::m_array);
 }
 
@@ -136,6 +138,7 @@ static void declare_MCM_Partitions(pybind11::handle m) {
         .def_readwrite("array", &MCM_Partitions::m_array);
 }
 
+// The main function defined in MinCompSpin_Greedy/main.cpp
 int main(int argc, const char *argv[]);
 
 const int argc = 3;
@@ -149,32 +152,24 @@ int main_wrapper(char *path, char *n_string_buffer) {
     return 0;
 }
 
-MCM_Kset read_datafile_wrapper(
-        std::string file,
-        unsigned int r) {
+MCM_Kset read_datafile_wrapper(std::string file, unsigned int r) {
     unsigned int N;
     GreedyKset greedy_Kset = read_datafile(&N, file, r);
-    MCM_Kset Kset(greedy_Kset, N);
+    MCM_Kset Kset(greedy_Kset, N, r);
     return Kset;
 }
 
-MCM_Partitions MCM_GreedySearch_AND_printInfo_wrapper(
-        MCM_Kset Kset,
-        unsigned int r,
-        bool print_it = false) {
+MCM_Partitions MCM_GreedySearch_AND_printInfo_wrapper(MCM_Kset Kset, bool print_it = false) {
     GreedyKset greedy_Kset = Kset.to_greedy();
     auto greedy_partitions = MCM_GreedySearch_AND_printInfo(
-        greedy_Kset, Kset.m_N, r, print_it);
-    return MCM_Partitions(greedy_partitions, r);
+        greedy_Kset, Kset.m_N, Kset.m_r, print_it);
+    return MCM_Partitions(greedy_partitions, Kset.m_r);
 }
 
-MCM_Partitions MCM_GreedySearch_wrapper(
-        MCM_Kset Kset,
-        unsigned int r,
-        bool print_it = false) {
+MCM_Partitions MCM_GreedySearch_wrapper(MCM_Kset Kset, bool print_it = false) {
     GreedyKset greedy_Kset = Kset.to_greedy();
-    GreedyPartitions greedy_partitions = MCM_GreedySearch(greedy_Kset, Kset.m_N, r, print_it);
-    auto model = MCM_Partitions(greedy_partitions, r);
+    GreedyPartitions greedy_partitions = MCM_GreedySearch(greedy_Kset, Kset.m_N, Kset.m_r, print_it);
+    auto model = MCM_Partitions(greedy_partitions, Kset.m_r);
     return model;
 }
 
@@ -183,47 +178,35 @@ double Entropy_wrapper(MCM_Kset Kset) {
     return Entropy(greedy_Kset, Kset.m_N);
 }
 
-double LogE_MCM_wrapper(
-        MCM_Kset Kset,
-        MCM_Partitions Partition,
-        unsigned int r) {
+double LogE_MCM_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
     GreedyKset greedy_Kset = Kset.to_greedy();
     GreedyPartitions greedy_partitions = Partition.to_greedy();
-    return LogE_MCM(greedy_Kset, greedy_partitions, Kset.m_N, r);
+    return LogE_MCM(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
-double LogL_MCM_wrapper(
-        MCM_Kset Kset,
-        MCM_Partitions Partition,
-        unsigned int r) {
+double LogL_MCM_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
     GreedyKset greedy_Kset = Kset.to_greedy();
     GreedyPartitions greedy_partitions = Partition.to_greedy();
-    return LogL_MCM(greedy_Kset, greedy_partitions, Kset.m_N, r);
+    return LogL_MCM(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
-void Print_MCM_Partition_wrapper(
-        MCM_Partitions Partition,
-        unsigned int r) {
-    GreedyPartitions greedy_partitions = Partition.to_greedy();
-    return Print_MCM_Partition(greedy_partitions, r);
+void Print_MCM_Partition_wrapper(MCM_Partitions Partitions) {
+    GreedyPartitions greedy_partitions = Partitions.to_greedy();
+    return Print_MCM_Partition(greedy_partitions, Partitions.m_r);
 }
 
-double LogL_MCM_infoICC_wrapper(
-        MCM_Kset Kset,
-        MCM_Partitions Partition,
-        unsigned int r) {
+double LogL_MCM_infoICC_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
+    assert(Kset.m_r == Partition.m_r);
     GreedyKset greedy_Kset = Kset.to_greedy();
     GreedyPartitions greedy_partitions = Partition.to_greedy();
-    return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, r);
+    return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
-double LogE_MCM_infoICC_wrapper(
-        MCM_Kset Kset,
-        MCM_Partitions Partition,
-        unsigned int r) {
+double LogE_MCM_infoICC_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
+    assert(Kset.m_r == Partition.m_r);
     GreedyKset greedy_Kset = Kset.to_greedy();
     GreedyPartitions greedy_partitions = Partition.to_greedy();
-    return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, r);
+    return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
 PYBIND11_MODULE(MinCompSpin, m) {
@@ -237,12 +220,10 @@ PYBIND11_MODULE(MinCompSpin, m) {
     m.def("read_datafile", &read_datafile_wrapper);
     m.def("MCM_GreedySearch_AND_printInfo", &MCM_GreedySearch_AND_printInfo_wrapper,
         pybind11::arg("Kset"),
-        pybind11::arg("r"),
         pybind11::arg("print_it") = false
     );
     m.def("MCM_GreedySearch", &MCM_GreedySearch_wrapper,
         pybind11::arg("Kset"),
-        pybind11::arg("r"),
         pybind11::arg("print_it") = false
     );
     m.def("Entropy", &Entropy_wrapper);
