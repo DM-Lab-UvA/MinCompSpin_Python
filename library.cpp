@@ -209,6 +209,13 @@ double LogE_MCM_infoICC_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
     return LogE_MCM_infoICC(greedy_Kset, greedy_partitions, Kset.m_N, Kset.m_r);
 }
 
+double LogE_ICC_wrapper(MCM_Kset Kset, MCM_Partitions Partition) {
+    assert(Kset.m_r == Partition.m_r);
+    GreedyKset greedy_Kset = Kset.to_greedy();
+    __int128_t icc = Partition.m_array.at(0, 1) | ((__int128_t)Partition.m_array.at(0, 2) << 64);
+    return LogE_ICC(greedy_Kset, icc, Kset.m_N);
+}
+
 void test_convert_Kset(MCM_Kset Kset) {
     GreedyKset converted = Kset.to_greedy();
     MCM_Kset copy(converted, Kset.m_N, Kset.m_r);
@@ -217,6 +224,16 @@ void test_convert_Kset(MCM_Kset Kset) {
 void test_convert_Partitions(MCM_Partitions Partitions) {
     GreedyPartitions converted = Partitions.to_greedy();
     MCM_Partitions copy(converted, Partitions.m_r);
+}
+
+void test(void) {
+    std::cout << "ENTERING TEST !!!!!!!!!!!!!!" << std::endl;
+    unsigned int N;
+    const unsigned int r = 100;
+    auto Kset = read_datafile(&N, "MinCompSpin_Greedy/INPUT/my_data_n100_N1000.dat", r);
+    __int128_t Ai = ((__int128_t)1 << 100) - 1;
+    double logE = LogE_ICC(Kset, Ai, N);
+    std::cout << "\nTESTESTEST LogE: " << logE << std::endl << std::endl;
 }
 
 PYBIND11_MODULE(MinCompSpin, m) {
@@ -242,9 +259,11 @@ PYBIND11_MODULE(MinCompSpin, m) {
     m.def("Print_MCM_Partition", &Print_MCM_Partition_wrapper);
     m.def("LogL_MCM_infoICC", &LogL_MCM_infoICC_wrapper);
     m.def("LogE_MCM_infoICC", &LogE_MCM_infoICC_wrapper);
+    m.def("LogE_ICC", &LogE_ICC_wrapper);
 
     // Test Functions
     m.def("test_convert_Kset", &test_convert_Kset);
     m.def("test_convert_Partitions", &test_convert_Partitions);
+    m.def("test", &test);
 }
 
