@@ -56,6 +56,7 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   unsigned int m = Bitset_count(Ai); // rank of the ICC
 
   double LogE = 0;
+  double SQRT_PI = lgamma(0.5);
   unsigned int Ncontrol = 0; // for control
   unsigned int Ks = 0;
 
@@ -65,7 +66,7 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   {
     Ks = (it->second);  Ncontrol += Ks;
     if (Ks == 0) {cout << "problem Ks = 0 for some mu_m" << endl; }
-    LogE += lgamma(Ks + 0.5) - lgamma(0.5);
+    LogE += lgamma(Ks + 0.5) - SQRT_PI;
   }  
   if (Ncontrol != N) { cout << "Error \'LogE_ICC\' function: Ncontrol != N" << endl;  }
 
