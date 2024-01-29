@@ -75,7 +75,7 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   if (m < 32) {
     return LogE + lgamma((double)( one128 << (m-1) )) - lgamma( (double)( N + (one128 << (m-1)) ) );
   } else {
-    return LogE - ((double) m - 1.) * N * log(2);
+    return LogE - ((double) m - 1.) * ((double) N) * log(2);
   }
 
   
