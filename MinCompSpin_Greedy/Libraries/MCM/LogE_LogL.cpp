@@ -65,12 +65,19 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   {
     Ks = (it->second);  Ncontrol += Ks;
     if (Ks == 0) {cout << "problem Ks = 0 for some mu_m" << endl; }
-    LogE += lgamma(Ks + 0.5);
+    LogE += lgamma(Ks + 0.5) - lgamma(0.5);
   }  
   if (Ncontrol != N) { cout << "Error \'LogE_ICC\' function: Ncontrol != N" << endl;  }
 
   //  return LogE - GeomComplexity_ICC(m) - lgamma( (double)( N + (one128 << (m-1)) ) );
-  return LogE + lgamma((double)( one128 << (m-1) )) - (Kset_ICC.size()/2.) * log(M_PI) - lgamma( (double)( N + (one128 << (m-1)) ) ); 
+
+  if (m < 32) {
+    return LogE + lgamma((double)( one128 << (m-1) )) - lgamma( (double)( N + (one128 << (m-1)) ) );
+  } else {
+    return LogE - ((double) m - 1.) * N * log(2);
+  }
+
+  
 }
 
 /******************************************************************************/
