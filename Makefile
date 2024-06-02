@@ -32,7 +32,7 @@ ifeq ($(UNAME), Windows_NT) # Windows
 else ifeq ($(UNAME), Darwin) # Mac
 	PYBIND_FLAGS += -undefined dynamic_lookup
 else ifeq ($(UNAME), Linux) # Linux
-	PYBIND_FLAGS += -fPIC
+	PYBIND_FLAGS += -fPIC -Wl --export-dynamic
 else
 $(error Couldn't find OS: $(UNAME))
 endif
