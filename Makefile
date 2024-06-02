@@ -32,7 +32,7 @@ ifeq ($(UNAME), Windows_NT) # Windows
 else ifeq ($(UNAME), Darwin) # Mac
 	PYBIND_FLAGS += -undefined dynamic_lookup
 else ifeq ($(UNAME), Linux) # Linux
-	PYBIND_FLAGS += -fPIC -Wl --export-dynamic
+	PYBIND_FLAGS += -fPIC -Wl,--export-dynamic
 else
 $(error Couldn't find OS: $(UNAME))
 endif
@@ -83,7 +83,6 @@ $(DIR_LIB)/library.hpp.gch: $(DIR_LIB)/library.hpp
 py_module: $(OBJS)
 	g++ -std=c++11 -O3 $(PYBIND_FLAGS) -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
 
-#-shared -undefined dynamic_lookup
 
 ########################################################################################################################
 ### make run:  ##### Execute C++ codes (with main):
