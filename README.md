@@ -3,7 +3,7 @@
 
 **Python:** The code works with Python 3 and requires `pybind11` to be installed. See [here](https://pybind11.readthedocs.io/en/stable/basics.html) for the requirements for pybind11 depending on your environment. 
 
-# Install
+# Install MinCompSpin package
 
 ```console
   $ git clone git@github.com:DM-Lab-UvA/MinCompSpin_Python.git
@@ -14,7 +14,7 @@
 # Usage
 
 The package can be built as shown in [Install](#install).
-You can then import it into python like so:
+You can then import it into python like this:
 ```python
   import MinCompSpin
   MinCompSpin.main("input/path.bin", n)
