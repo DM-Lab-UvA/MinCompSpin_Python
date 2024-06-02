@@ -69,8 +69,14 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   }  
   if (Ncontrol != N) { cout << "Error \'LogE_ICC\' function: Ncontrol != N" << endl;  }
 
-  //  return LogE - GeomComplexity_ICC(m) - lgamma( (double)( N + (one128 << (m-1)) ) );
-  return LogE + lgamma((double)( one128 << (m-1) )) - (Kset_ICC.size()/2.) * log(M_PI) - lgamma( (double)( N + (one128 << (m-1)) ) ); 
+  if (m > 31) // use approximation up to order O(N^2/2^n) -- first neglected order is O(N^3 / (2^n)^2) 
+              //       --> For N~10^7: this term is already neglectable for n~31  --> unlikely that someone would use this code with a dataset much larger than N~10^7
+    {   lgamma_diff = ( - 1. * N * ((double)(m-1))*log(2.) ) - N*(N-1.)/((double) (one128 << m) );  }
+  else // use exact value
+    {   lgamma_diff = lgamma((double)( one128 << (m-1) )) - lgamma( (double)( N + (one128 << (m-1)) ) );  }
+  
+  //  return LogE - GeomComplexity_ICC(m) - lgamma( (double)( N + (one128 << (m-1)) ) ); 
+  return LogE - (Kset_ICC.size()/2.) * log(M_PI) + lgamma_diff ; 
 }
 
 /******************************************************************************/
