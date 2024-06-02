@@ -14,8 +14,12 @@
 # Usage
 
 The package can be built as shown in [Install](#install).
-You can then import it into python like this:
+You can then import it into python using:
 ```python
   import MinCompSpin
   MinCompSpin.main("input/path.bin", n)
 ```
+
+For quick examples on how to use the package check:
+ - the Jupyter notebook: `Test_Binding.ipynb`
+ - the python script: `test.py`
