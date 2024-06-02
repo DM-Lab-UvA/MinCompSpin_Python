@@ -55,7 +55,7 @@ double LogE_ICC(vector<pair<__int128_t, unsigned int>> Kset, __int128_t Ai, unsi
   map<__int128_t, unsigned int> Kset_ICC = build_Kset_ICC(Kset, Ai);  // Data reduced to the ICC
   unsigned int m = Bitset_count(Ai); // rank of the ICC
 
-  double LogE = 0;
+  double LogE = 0, lgamma_diff = 0;
   unsigned int Ncontrol = 0; // for control
   unsigned int Ks = 0;
 
