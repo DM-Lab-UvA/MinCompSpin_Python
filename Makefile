@@ -77,8 +77,13 @@ $(DIR_LIB)/library.hpp.gch: $(DIR_LIB)/library.hpp
 ########################################################################################################################
 ### make py_module:  ##### Compile Python module:
 
+#py_module: $(OBJS)
+#	g++ -std=c++11 -O3 -shared -undefined dynamic_lookup -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
+
 py_module: $(OBJS)
-	g++ -std=c++11 -O3 -shared -undefined dynamic_lookup -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
+	g++ -std=c++11 -O3 $(PYBIND_FLAGS) -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
+
+#-shared -undefined dynamic_lookup
 
 ########################################################################################################################
 ### make run:  ##### Execute C++ codes (with main):
