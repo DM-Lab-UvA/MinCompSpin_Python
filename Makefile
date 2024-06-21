@@ -25,7 +25,7 @@ PYBIND_INCLUDE = $(shell python3 -m pybind11 --includes)
 PYBIND_FLAGS = -shared
 
 UNAME := $(shell uname)
-ifeq ($(UNAME), Windows_NT) # Windows
+ifeq ($(UNAME), CYGWIN_NT-10.0) # Windows
 	# I don't know what to do here but from what I saw online
 	# it looks like it's the same as on linux.
 	PYBIND_FLAGS += -fPIC -U__STRICT_ANSI__
