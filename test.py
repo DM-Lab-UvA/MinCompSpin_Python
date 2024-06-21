@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 import MinCompSpin as mod
 
 def greedy_main(path, r):

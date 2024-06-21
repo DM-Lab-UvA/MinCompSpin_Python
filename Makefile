@@ -15,7 +15,7 @@ CXXFLAGS = -std=c++11 -Wall -O3 #-Wextra
 
 ######## For PYTHON Package using PYBIND:
 MODULE_NAME = MinCompSpin
-OUTFILE = $(MODULE_NAME)$(shell py -c "from sysconfig import get_config_var; print(get_config_var('EXT_SUFFIX'))") # Generate the filename python wants for its modules
+OUTFILE = ./packages/$(MODULE_NAME)$(shell py -c "from sysconfig import get_config_var; print(get_config_var('EXT_SUFFIX'))") # Generate the filename python wants for its modules
 
 # OUTFILE = $(MODULE_NAME)$(shell python3-config --extension-suffix) # Generate the module filename
 
