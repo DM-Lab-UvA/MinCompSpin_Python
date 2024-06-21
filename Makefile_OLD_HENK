@@ -11,32 +11,26 @@
 CC = g++
 CXX = g++ 	# Flag for implicit rules: compilation of c++ files
 #CXXFLAGS = ERROR NO DEFAULT RULE
-CXXFLAGS = -std=c++11 -Wall -O3 #-Wextra
+CXXFLAGS = -Wall -O3 -std=c++11 #-Wextra
 
 ######## For PYTHON Package using PYBIND:
 MODULE_NAME = MinCompSpin
-OUTFILE = $(MODULE_NAME)$(shell py -c "from sysconfig import get_config_var; print(get_config_var('EXT_SUFFIX'))") # Generate the filename python wants for its modules
+OUTFILE = $(MODULE_NAME)$(shell python3-config --extension-suffix) # Generate the filename python wants for its modules
 
-# OUTFILE = $(MODULE_NAME)$(shell python3-config --extension-suffix) # Generate the module filename
+PYBIND_INCLUDE = $(shell python3 -m pybind11 --includes)
 
 # -fvisibility=hidden see:
 # https://pybind11.readthedocs.io/en/stable/faq.html#someclass-declared-with-greater-visibility-than-the-type-of-its-field-someclass-member-wattributes
 #CFLAGS_PYBIND_COMP = -IMinCompSpin_Greedy/Libraries -fvisibility=hidden
 PYBIND_FLAGS = -shared
-PYTHON_INCLUDE = -I/cygdrive/c/Python312/include
-PYTHON_LIB = -L/cygdrive/c/Python312/libs -lpython312
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), CYGWIN_NT-10.0) # Windows
-	CXXFLAGS += -m64 -fPIC -U__STRICT_ANSI__ 
-	PYBIND_FLAGS += -m64 -fPIC -U__STRICT_ANSI__
-	PYBIND_INCLUDE = $(shell py -m pybind11 --includes)
+	PYBIND_FLAGS += -fPIC -U__STRICT_ANSI__
 else ifeq ($(UNAME), Darwin) # Mac
 	PYBIND_FLAGS += -undefined dynamic_lookup
-	PYBIND_INCLUDE = $(shell python -m pybind11 --includes)
 else ifeq ($(UNAME), Linux) # Linux
 	PYBIND_FLAGS += -fPIC -Wl,--export-dynamic
-	PYBIND_INCLUDE = $(shell python -m pybind11 --includes)
 else
 $(error Couldn't find OS: $(UNAME))
 endif
@@ -84,10 +78,8 @@ $(DIR_LIB)/library.hpp.gch: $(DIR_LIB)/library.hpp
 #py_module: $(OBJS)
 #	g++ -std=c++11 -O3 -shared -undefined dynamic_lookup -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
 
-py_module: 
-	@echo "TEST"
-	@echo $(PYBIND_INCLUDE)
-	g++ -std=c++11 -O3 $(PYBIND_FLAGS) -include includes/library.hpp includes/main_routines.cpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) $(PYTHON_LIB)
+py_module: $(OBJS)
+	g++ -std=c++11 -O3 $(PYBIND_FLAGS) -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
 
 
 ########################################################################################################################
