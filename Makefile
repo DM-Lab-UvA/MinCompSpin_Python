@@ -1,4 +1,3 @@
-
 ########################################################################################################################
 ######## ENTER THE FOLLOWING IN YOUR TERMINAL:
 #### TO COMPILE C++:  					make
@@ -10,7 +9,6 @@
 ######## C++ compiler:
 CC = g++
 CXX = g++ 	# Flag for implicit rules: compilation of c++ files
-#CXXFLAGS = ERROR NO DEFAULT RULE
 CXXFLAGS = -std=c++11 -Wall -O3 #-Wextra
 
 ######## For PYTHON Package using PYBIND:
@@ -55,6 +53,8 @@ MCM_GREEDY_BUILD_PATH = MinCompSpin_Greedy
 ########################################################################################################################
 ### make all:  ##### Compile C++ codes (with main):
 
+all: MCM_Greedy.out
+
 MCM_Greedy.out: $(OBJS) $(DIR_LIB)/main.o $(DIR_LIB)/main_routines.o $(DIR_LIB)/library.hpp.gch
 	g++ $(CXXFLAGS) $(DIR_LIB)/main.o $(DIR_LIB)/main_routines.o $(OBJS) -o MCM_Greedy.out
 
@@ -67,28 +67,11 @@ $(DIR_LIB)/main_routines.o: $(DIR_LIB)/main_routines.cpp $(DIR_LIB)/library.hpp.
 $(DIR_LIB)/library.hpp.gch: $(DIR_LIB)/library.hpp
 	g++ $(CXXFLAGS) -c $(DIR_LIB)/library.hpp
 
-#all: $(OUTFILE)
-
-#$(OUTFILE): $(MCM_GREEDY_TARGET) library.o
-#	$(CC) $(CFLAGS) $(CFLAGS_PYBIND_LINK) -o $(OUTFILE) $(MCM_GREEDY_TARGET) library.o
-
-#library.o: library.cpp
-#	$(CC) $(CFLAGS) $(CFLAGS_PYBIND_COMP) $(PYBIND_INCLUDE) -o library.o -c library.cpp
-
-#$(MCM_GREEDY_TARGET):
-#	cd $(MCM_GREEDY_BUILD_PATH) && $(MAKE)
-
 ########################################################################################################################
 ### make py_module:  ##### Compile Python module:
 
-#py_module: $(OBJS)
-#	g++ -std=c++11 -O3 -shared -undefined dynamic_lookup -include includes/library.hpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) includes/main_routines.cpp
-
-py_module: 
-	@echo "TEST"
-	@echo $(PYBIND_INCLUDE)
+py_module: $(OBJS)
 	g++ -std=c++11 -O3 $(PYBIND_FLAGS) -include includes/library.hpp includes/main_routines.cpp $(PYBIND_INCLUDE) binding/library.cpp $(OBJS) -o $(OUTFILE) $(PYTHON_LIB)
-
 
 ########################################################################################################################
 ### make run:  ##### Execute C++ codes (with main):
@@ -101,8 +84,3 @@ clean:
 	rm -f $(OBJS) 
 	rm -f $(DIR_LIB)/library.hpp.gch $(DIR_LIB)/main_routines.o $(DIR_LIB)/main.o 
 	rm -f MCM_Greedy.out
-
-#	rm $(OUTFILE) || true
-#	rm library.o  || true
-#	(cd $(MCM_GREEDY_BUILD_PATH) && $(MAKE) clean) || true
-

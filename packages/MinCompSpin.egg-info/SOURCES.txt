@@ -1,6 +1,0 @@
-MinCompSpin.cp312-win_amd64.pyd
-setup.py
-MinCompSpin.egg-info/PKG-INFO
-MinCompSpin.egg-info/SOURCES.txt
-MinCompSpin.egg-info/dependency_links.txt
-MinCompSpin.egg-info/top_level.txt
